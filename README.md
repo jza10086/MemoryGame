@@ -1,6 +1,7 @@
-# 方向密码
+# 方向密码：单人原型
 
-使用 Godot 4.7 打开 `project.godot`，按 F5 开始游戏。
+独立检出后用 Godot 打开 `project.godot`，按 **F5** 启动。
+本原型不提供 manifest，不接入 PartyAPI、游戏目录、联机或存档。
 
 ## 玩法
 
@@ -14,7 +15,10 @@
 - 「重新开始」随时回到起始页；最终「再玩一次」开始新的一局。
 
 场景根节点的 `arrow_seconds` 与 `gap_seconds` 可调整展示和间隔时间。
+[Noto CJK 中文字体](https://github.com/notofonts/noto-cjk)与[许可](assets/fonts/FONT-LICENSE.txt)随包提供。
 
-## 字体
+## 回归检查
 
-中文字体来自 [Noto CJK](https://github.com/notofonts/noto-cjk)。随仓库提供[字体许可](assets/fonts/FONT-LICENSE.txt)。
+旧自动测试已退役归档；后续定向检查只放在项目根目录 tmp/test/。
+覆盖逐位置评分、重复方向间隔、观察阶段输入锁、键盘重复过滤、撤销、超时、重复结算保护、重开、六轮结算与不同分辨率布局。
+程序化检查不代替真实键鼠操作和记忆难度体验。

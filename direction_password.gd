@@ -2,7 +2,7 @@
 ## Deliberately has no manifest, PartyAPI, networking or persistent settings.
 extends Control
 
-const RULES: GDScript = preload("res://direction_password_rules.gd")
+const RULES: GDScript = preload("direction_password_rules.gd")
 const ARROWS: Array[String] = ["↑", "→", "↓", "←"]
 const NAMES: Array[String] = ["上", "右", "下", "左"]
 const ACCENT: Color = Color("#6ce5c2")
