@@ -1,6 +1,6 @@
 # 方向密码：单人原型
 
-独立检出后用 Godot 打开 `project.godot`，按 **F5** 启动。
+在 GodotParty 主工程打开 `res://games/minigame/direction_password/direction_password.tscn`，按 **F6** 启动。
 本原型不提供 manifest，不接入 PartyAPI、游戏目录、联机或存档。
 
 ## 玩法
