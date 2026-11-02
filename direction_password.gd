@@ -1,6 +1,7 @@
-## Standalone F6 memory prototype. Owns only its UI and local round state.
-## Deliberately has no manifest, PartyAPI, networking or persistent settings.
+## Local memory game. The party entry listens for the six-round result.
 extends Control
+
+signal completed(metrics: Dictionary)
 
 const RULES: GDScript = preload("direction_password_rules.gd")
 const ARROWS: Array[String] = ["↑", "→", "↓", "←"]
@@ -286,6 +287,8 @@ func _show_summary() -> void:
 		_summary_rows.add_child(line)
 	_feedback.text = "答对 %d / %d 个位置 · 再玩一次会生成新的随机密码" % [total_correct, total_positions]
 	_refresh_controls()
+
+	completed.emit({"score": total_score, "accuracy": accuracy})
 
 func _refresh_controls() -> void:
 	var accepting: bool = phase == Phase.ANSWER
