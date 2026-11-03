@@ -3,7 +3,7 @@ extends Control
 
 signal completed(metrics: Dictionary)
 
-const RULES: GDScript = preload("direction_password_rules.gd")
+const RULES: GDScript = preload("res://games/minigame/direction_password/direction_password_rules.gd")
 const ARROWS: Array[String] = ["↑", "→", "↓", "←"]
 const NAMES: Array[String] = ["上", "右", "下", "左"]
 const ACCENT: Color = Color("#6ce5c2")
@@ -342,7 +342,7 @@ func _style_box(fill: Color, border: Color, radius: int) -> StyleBoxFlat:
 
 func _style_ui() -> void:
 	add_theme_color_override("font_color", TEXT)
-	_board.add_theme_stylebox_override("panel", _style_box(Color("#101d30"), Color("#2c405b"), 24))
+	_board.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_phase_label.modulate = ACCENT
 	_hint.modulate = MUTED
 	_expected_caption.modulate = MUTED
