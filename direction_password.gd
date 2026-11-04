@@ -3,6 +3,8 @@ extends Control
 
 signal completed(metrics: Dictionary)
 
+const SoloRound = preload("res://games/protocols/godot_party_default_protocol/solo_round.gd")
+const DEFAULT_TEXT: Translation = preload("res://games/minigame/direction_password/i18n/zh_Hans.po")
 const RULES: GDScript = preload("res://games/minigame/direction_password/direction_password_rules.gd")
 const ARROWS: Array[String] = ["↑", "→", "↓", "←"]
 const NAMES: Array[String] = ["上", "右", "下", "左"]
@@ -17,7 +19,6 @@ enum Phase { READY, PREPARE, SHOW, GAP, ANSWER, REVIEW, FINISHED }
 @export_range(0.3, 2.0, 0.05) var arrow_seconds: float = 0.85
 @export_range(0.1, 1.0, 0.05) var gap_seconds: float = 0.25
 
-@onready var _board: PanelContainer = %Board
 @onready var _phase_label: Label = %PhaseLabel
 @onready var _hero: Label = %HeroLabel
 @onready var _hint: Label = %HintLabel
@@ -33,6 +34,7 @@ enum Phase { READY, PREPARE, SHOW, GAP, ANSWER, REVIEW, FINISHED }
 @onready var _undo: Button = %UndoButton
 @onready var _restart: Button = %RestartButton
 
+var _i18n: RefCounted
 var phase: Phase = Phase.READY
 var round_index: int = -1
 var sequence: Array[int] = []
@@ -43,12 +45,13 @@ var total_positions: int = 0
 var round_results: Array[Dictionary] = []
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _direction_buttons: Array[Button] = []
-var _answer_tiles: Array[Label] = []
 var _shown_index: int = 0
 var _time_left: float = 0.0
 var _phase_duration: float = 1.0
 
 func _ready() -> void:
+	if get_parent() is SoloRound:
+		_i18n = get_parent().api.i18n
 	assert(arrow_seconds > 0.0 and gap_seconds > 0.0, "Presentation durations must be positive.")
 	_direction_buttons = [%UpButton, %RightButton, %DownButton, %LeftButton]
 	for direction: int in range(_direction_buttons.size()):
@@ -57,7 +60,6 @@ func _ready() -> void:
 	_undo.pressed.connect(undo_direction)
 	_restart.pressed.connect(reset_game)
 	_rng.randomize()
-	_style_ui()
 	reset_game()
 
 func _process(delta: float) -> void:
@@ -68,7 +70,7 @@ func _process(delta: float) -> void:
 	if phase == Phase.PREPARE:
 		_hero.text = str(maxi(1, ceili(_time_left)))
 	elif phase == Phase.ANSWER:
-		_hint.text = "剩余 %d 秒 · 输入后可撤销，全部填好再提交" % ceili(_time_left)
+		_hint.text = _text(&"hud.timer", {"time": ceili(_time_left)})
 	if _time_left > 0.0:
 		return
 	# Only advance one display step per frame: a stalled frame must not skip arrows.
@@ -123,12 +125,8 @@ func reset_game() -> void:
 	total_correct = 0
 	total_positions = 0
 	_time_left = 0.0
-	_answer_tiles.clear()
-	_clear_children(_answer_row)
-	_clear_children(_expected_row)
-	_clear_children(_summary_rows)
 	_hero.show()
-	_answer_row.show()
+	_answer_row.hide()
 	_summary_rows.hide()
 	_expected_row.hide()
 	_expected_caption.hide()
@@ -182,19 +180,18 @@ func _begin_round() -> void:
 	_expected_row.hide()
 	_expected_caption.hide()
 	_summary_rows.hide()
-	_clear_children(_expected_row)
-	_answer_tiles.clear()
-	_clear_children(_answer_row)
-	for index: int in range(sequence.size()):
-		var tile: Label = _make_tile(str(index + 1), MUTED)
-		_answer_row.add_child(tile)
-		_answer_tiles.append(tile)
+	for index: int in _answer_row.get_child_count():
+		var tile: Label = _answer_row.get_child(index)
+		tile.visible = index < sequence.size()
+		tile.text = str(index + 1)
+		tile.modulate = MUTED
+		tile.tooltip_text = ""
 	_hero.show()
 	_answer_row.show()
-	_phase_label.text = "第 %d / %d 轮 · 准备观察" % [round_index + 1, RULES.ROUND_COUNT]
+	_phase_label.text = _text(&"hud.phase", {"round": round_index + 1, "total": RULES.ROUND_COUNT, "phase": "准备观察"})
 	_hero.text = str(int(PREPARE_SECONDS))
 	_hero.modulate = TEXT
-	_hint.text = "本轮 %d 个方向 · 相同方向也可能连续出现" % sequence.size()
+	_hint.text = _text(&"hud.count", {"count": sequence.size()})
 	_answer_caption.text = "观察时不能输入"
 	_feedback.text = "先记顺序，等全部方向消失后再作答。"
 	_feedback.modulate = MUTED
@@ -202,16 +199,16 @@ func _begin_round() -> void:
 	_refresh_controls()
 
 func _show_direction() -> void:
-	_phase_label.text = "第 %d / %d 轮 · 观察记忆" % [round_index + 1, RULES.ROUND_COUNT]
+	_phase_label.text = _text(&"hud.phase", {"round": round_index + 1, "total": RULES.ROUND_COUNT, "phase": "观察记忆"})
 	_hero.text = ARROWS[sequence[_shown_index]]
 	_hero.modulate = ACCENT
-	_hint.text = "第 %d / %d 个方向 · %s" % [_shown_index + 1, sequence.size(), NAMES[sequence[_shown_index]]]
-	for index: int in range(_answer_tiles.size()):
-		_answer_tiles[index].modulate = ACCENT if index == _shown_index else MUTED
+	_hint.text = _text(&"hud.direction", {"current": _shown_index + 1, "total": sequence.size(), "direction": NAMES[sequence[_shown_index]]})
+	for index: int in range(sequence.size()):
+		_answer_row.get_child(index).modulate = ACCENT if index == _shown_index else MUTED
 	_set_timed_phase(Phase.SHOW, arrow_seconds)
 
 func _begin_answer() -> void:
-	_phase_label.text = "第 %d / %d 轮 · 回忆输入" % [round_index + 1, RULES.ROUND_COUNT]
+	_phase_label.text = _text(&"hud.phase", {"round": round_index + 1, "total": RULES.ROUND_COUNT, "phase": "回忆输入"})
 	_hero.text = "?"
 	_hero.modulate = TEXT
 	_hint.text = "按记忆输入方向，填满后按 Enter 提交。"
@@ -236,26 +233,30 @@ func _finish_round(timed_out: bool) -> void:
 	total_score += int(result["points"])
 	total_correct += int(result["correct"])
 	total_positions += int(result["total"])
-	_phase_label.text = "第 %d / %d 轮 · %s" % [round_index + 1, RULES.ROUND_COUNT, "时间到" if timed_out else "答案揭晓"]
-	_hero.text = "+%d" % int(result["points"])
+	_phase_label.text = _text(&"hud.phase", {"round": round_index + 1, "total": RULES.ROUND_COUNT, "phase": "时间到" if timed_out else "答案揭晓"})
+	_hero.text = _text(&"hud.points", {"score": result.points})
 	_hero.modulate = ACCENT
-	_hint.text = "答对 %d / %d 个位置%s" % [int(result["correct"]), sequence.size(), " · 全对奖励 +100" if bool(result["perfect"]) else ""]
+	_hint.text = _text(&"hud.correct", {"correct": result.correct, "total": sequence.size(), "bonus": " · 全对奖励 +100" if result.perfect else ""})
 	_feedback.text = "本轮得分已计入总分。没有淘汰，准备好后进入下一轮。"
 	_feedback.modulate = MUTED
 	_progress.value = 0.0
 	_refresh_answer_tiles(true)
-	for direction: int in sequence:
-		_expected_row.add_child(_make_tile(ARROWS[direction], ACCENT))
+	for index: int in _expected_row.get_child_count():
+		var tile: Label = _expected_row.get_child(index)
+		tile.visible = index < sequence.size()
+		if tile.visible:
+			tile.text = ARROWS[sequence[index]]
+			tile.modulate = ACCENT
 	_expected_row.show()
 	_expected_caption.show()
 	_update_score()
 	_refresh_controls()
 
 func _refresh_answer_tiles(reveal: bool) -> void:
-	_answer_caption.text = "你的答案" if reveal else "已输入 %d / %d" % [answers.size(), sequence.size()]
-	for index: int in range(_answer_tiles.size()):
+	_answer_caption.text = "你的答案" if reveal else _text(&"hud.entered", {"current": answers.size(), "total": sequence.size()})
+	for index: int in range(sequence.size()):
 		var filled: bool = index < answers.size()
-		var tile: Label = _answer_tiles[index]
+		var tile: Label = _answer_row.get_child(index)
 		tile.text = ARROWS[answers[index]] if filled else "—"
 		if reveal:
 			var correct: bool = filled and answers[index] == sequence[index]
@@ -273,19 +274,15 @@ func _show_summary() -> void:
 	_expected_row.hide()
 	_expected_caption.hide()
 	_summary_rows.show()
-	_clear_children(_summary_rows)
 	var accuracy: float = 100.0 * float(total_correct) / float(maxi(total_positions, 1))
-	_hint.text = "总分 %d / %d    ·    正确率 %.1f%%" % [total_score, RULES.maximum_score(), accuracy]
+	_hint.text = _text(&"hud.totals", {"score": total_score, "maximum": RULES.maximum_score(), "accuracy": "%.1f" % accuracy})
 	_answer_caption.text = "每轮成绩"
 	for index: int in range(round_results.size()):
 		var result: Dictionary = round_results[index]
-		var line: Label = Label.new()
-		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		line.add_theme_font_size_override("font_size", 24)
-		line.text = "第 %d 轮     %d / %d 正确     +%d 分%s" % [index + 1, int(result["correct"]), int(result["total"]), int(result["points"]), "  ·  全对" if bool(result["perfect"]) else ""]
+		var line: Label = _summary_rows.get_child(index)
+		line.text = _text(&"hud.result", {"round": index + 1, "correct": result.correct, "total": result.total, "score": result.points, "bonus": "  ·  全对" if result.perfect else ""})
 		line.modulate = ACCENT if bool(result["perfect"]) else TEXT
-		_summary_rows.add_child(line)
-	_feedback.text = "答对 %d / %d 个位置 · 再玩一次会生成新的随机密码" % [total_correct, total_positions]
+	_feedback.text = _text(&"hud.replay", {"correct": total_correct, "total": total_positions})
 	_refresh_controls()
 
 	completed.emit({"score": total_score, "accuracy": accuracy})
@@ -309,55 +306,7 @@ func _refresh_controls() -> void:
 			_primary.text = "再玩一次  /  Enter"
 
 func _update_score() -> void:
-	_score_label.text = "总分  %d" % total_score
+	_score_label.text = _text(&"hud.score", {"score": total_score})
 
-func _make_tile(text: String, color: Color) -> Label:
-	var tile: Label = Label.new()
-	tile.text = text
-	tile.custom_minimum_size = Vector2(74.0, 66.0)
-	tile.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tile.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	tile.add_theme_font_size_override("font_size", 40)
-	tile.add_theme_stylebox_override("normal", _style_box(Color("#17273d"), Color("#2d415e"), 12))
-	tile.modulate = color
-	tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return tile
-
-func _clear_children(parent: Node) -> void:
-	for child: Node in parent.get_children():
-		parent.remove_child(child)
-		child.queue_free()
-
-func _style_box(fill: Color, border: Color, radius: int) -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 16.0
-	style.content_margin_right = 16.0
-	style.content_margin_top = 8.0
-	style.content_margin_bottom = 8.0
-	return style
-
-func _style_ui() -> void:
-	add_theme_color_override("font_color", TEXT)
-	_board.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	_phase_label.modulate = ACCENT
-	_hint.modulate = MUTED
-	_expected_caption.modulate = MUTED
-	_progress.add_theme_stylebox_override("background", _style_box(Color("#1b2b42"), Color("#1b2b42"), 4))
-	_progress.add_theme_stylebox_override("fill", _style_box(ACCENT, ACCENT, 4))
-	var buttons: Array[Button] = _direction_buttons.duplicate()
-	buttons.append_array([_primary, _undo, _restart])
-	for button: Button in buttons:
-		button.add_theme_font_size_override("font_size", 24)
-		button.add_theme_color_override("font_color", TEXT)
-		button.add_theme_color_override("font_hover_color", TEXT)
-		button.add_theme_color_override("font_pressed_color", TEXT)
-		button.add_theme_color_override("font_disabled_color", Color("#60728d"))
-		button.add_theme_stylebox_override("normal", _style_box(Color("#20334f"), Color("#3c5475"), 12))
-		button.add_theme_stylebox_override("hover", _style_box(Color("#2d4866"), ACCENT, 12))
-		button.add_theme_stylebox_override("pressed", _style_box(Color("#163e3a"), ACCENT, 12))
-		button.add_theme_stylebox_override("disabled", _style_box(Color("#111d2e"), Color("#22324a"), 12))
-	_primary.add_theme_stylebox_override("normal", _style_box(Color("#17483e"), ACCENT, 12))
+func _text(key: StringName, values: Dictionary) -> String:
+	return DEFAULT_TEXT.get_message(key).format(values) if _i18n == null else _i18n.text(key, values)

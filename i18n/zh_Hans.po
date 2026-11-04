@@ -9,3 +9,36 @@ msgstr "方向密码"
 
 msgid "记住六轮方向序列，用方向键或 WASD 输入，退格撤销，回车提交。每个正确位置得 100 分，全对额外得 100 分。"
 msgstr "记住六轮方向序列，用方向键或 WASD 输入，退格撤销，回车提交。每个正确位置得 100 分，全对额外得 100 分。"
+
+msgid "hud.timer"
+msgstr "剩余 {time} 秒 · 输入后可撤销，全部填好再提交"
+
+msgid "hud.phase"
+msgstr "第 {round} / {total} 轮 · {phase}"
+
+msgid "hud.count"
+msgstr "本轮 {count} 个方向 · 相同方向也可能连续出现"
+
+msgid "hud.direction"
+msgstr "第 {current} / {total} 个方向 · {direction}"
+
+msgid "hud.points"
+msgstr "+{score}"
+
+msgid "hud.correct"
+msgstr "答对 {correct} / {total} 个位置{bonus}"
+
+msgid "hud.entered"
+msgstr "已输入 {current} / {total}"
+
+msgid "hud.totals"
+msgstr "总分 {score} / {maximum}    ·    正确率 {accuracy}%"
+
+msgid "hud.result"
+msgstr "第 {round} 轮     {correct} / {total} 正确     +{score} 分{bonus}"
+
+msgid "hud.replay"
+msgstr "答对 {correct} / {total} 个位置 · 再玩一次会生成新的随机密码"
+
+msgid "hud.score"
+msgstr "总分  {score}"
