@@ -34,5 +34,14 @@
     "translations": {
       "zh_Hans": "i18n/zh_Hans.po"
     }
+  },
+  "controls": {
+    "direction_up": "向上",
+    "direction_right": "向右",
+    "direction_down": "向下",
+    "direction_left": "向左",
+    "direction_undo": "撤销",
+    "direction_confirm": "确认",
+    "direction_restart": "重新开始"
   }
 }

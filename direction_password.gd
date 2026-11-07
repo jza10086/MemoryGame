@@ -1,9 +1,14 @@
 ## Local memory game. The party entry listens for the six-round result.
 extends Control
+const Controls = preload("res://games/protocols/godot_party_default_protocol/solo_controls.gd")
+const Settings = preload("res://games/minigame/direction_password/settings.gd")
+var controls: Controls = Controls.new(Settings.schema())
+var _active: bool = false
+var _stopped: bool = false
+var _text_source: RefCounted
 
 signal completed(metrics: Dictionary)
 
-const SoloRound = preload("res://games/protocols/godot_party_default_protocol/solo_round.gd")
 const DEFAULT_TEXT: Translation = preload("res://games/minigame/direction_password/i18n/zh_Hans.po")
 const RULES: GDScript = preload("res://games/minigame/direction_password/direction_password_rules.gd")
 const ARROWS: Array[String] = ["↑", "→", "↓", "←"]
@@ -50,19 +55,25 @@ var _time_left: float = 0.0
 var _phase_duration: float = 1.0
 
 func _ready() -> void:
-	if get_parent() is SoloRound:
-		_i18n = get_parent().api.i18n
 	assert(arrow_seconds > 0.0 and gap_seconds > 0.0, "Presentation durations must be positive.")
 	_direction_buttons = [%UpButton, %RightButton, %DownButton, %LeftButton]
 	for direction: int in range(_direction_buttons.size()):
 		_direction_buttons[direction].pressed.connect(enter_direction.bind(direction))
 	_primary.pressed.connect(activate_primary)
 	_undo.pressed.connect(undo_direction)
-	_restart.pressed.connect(reset_game)
+	_restart.pressed.connect(_restart_requested)
 	_rng.randomize()
+	_i18n = _text_source
 	reset_game()
+	visible = controls.context == null
+	if controls.context == null:
+		solo_start()
 
 func _process(delta: float) -> void:
+	if not _active:
+		return
+	# Poll while idle too, so released keys rearm the scoped input before a new event.
+	controls.is_pressed(&"direction_confirm")
 	if phase not in [Phase.PREPARE, Phase.SHOW, Phase.GAP, Phase.ANSWER]:
 		return
 	_time_left = maxf(0.0, _time_left - delta)
@@ -91,28 +102,21 @@ func _process(delta: float) -> void:
 			_finish_round(true)
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if not event is InputEventKey:
-		return
-	var key_event: InputEventKey = event as InputEventKey
-	if not key_event.pressed or key_event.echo or key_event.ctrl_pressed or key_event.alt_pressed or key_event.meta_pressed:
-		return
-	var key: int = key_event.physical_keycode if key_event.physical_keycode != 0 else key_event.keycode
-	match key:
-		KEY_UP, KEY_W:
-			enter_direction(0)
-		KEY_RIGHT, KEY_D:
-			enter_direction(1)
-		KEY_DOWN, KEY_S:
-			enter_direction(2)
-		KEY_LEFT, KEY_A:
-			enter_direction(3)
-		KEY_BACKSPACE:
-			undo_direction()
-		KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
-			activate_primary()
-		_:
+	for direction: int in 4:
+		if controls.matches(event, [&"direction_up", &"direction_right", &"direction_down", &"direction_left"][direction]):
+			enter_direction(direction)
+			get_viewport().set_input_as_handled()
 			return
-	get_viewport().set_input_as_handled()
+	if controls.matches(event, &"direction_undo"):
+		undo_direction()
+	elif controls.matches(event, &"direction_confirm"):
+		activate_primary()
+	elif controls.matches(event, &"direction_restart"):
+		_restart_requested()
+
+func _restart_requested() -> void:
+	if controls.allowed():
+		reset_game()
 
 ## Starts a fresh session immediately; no delayed callbacks survive a restart.
 func reset_game() -> void:
@@ -143,6 +147,8 @@ func reset_game() -> void:
 
 ## The same semantic actions serve keyboard and mouse, independently of InputMap.
 func activate_primary() -> void:
+	if not controls.allowed():
+		return
 	match phase:
 		Phase.READY:
 			_begin_round()
@@ -159,6 +165,8 @@ func activate_primary() -> void:
 			_begin_round()
 
 func enter_direction(direction: int) -> void:
+	if not controls.allowed():
+		return
 	if phase != Phase.ANSWER or direction < 0 or direction >= ARROWS.size() or answers.size() >= sequence.size():
 		return
 	answers.append(direction)
@@ -166,6 +174,8 @@ func enter_direction(direction: int) -> void:
 	_refresh_controls()
 
 func undo_direction() -> void:
+	if not controls.allowed():
+		return
 	if phase != Phase.ANSWER or answers.is_empty():
 		return
 	answers.pop_back()
@@ -310,3 +320,36 @@ func _update_score() -> void:
 
 func _text(key: StringName, values: Dictionary) -> String:
 	return DEFAULT_TEXT.get_message(key).format(values) if _i18n == null else _i18n.text(key, values)
+
+## Injected before entering the tree. F6 leaves the formal dependencies unset.
+func solo_setup(input: PartyInput, text_source: RefCounted) -> void:
+	controls.bind(input)
+	_text_source = text_source
+
+
+func solo_start() -> void:
+	if _stopped:
+		return
+	_active = true
+	controls.enabled = true
+	show()
+
+func solo_stop() -> void:
+	if _stopped:
+		return
+	_stopped = true
+	_active = false
+	controls.enabled = false
+	set_process(false)
+	set_physics_process(false)
+	set_process_unhandled_input(false)
+	set_process_unhandled_key_input(false)
+	if not is_node_ready():
+		return
+	hide()
+
+func solo_graphics_targets() -> Dictionary:
+	return {}
+
+func solo_audio_target() -> PartyGameAudio:
+	return null

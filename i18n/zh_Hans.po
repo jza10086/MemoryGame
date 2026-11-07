@@ -42,3 +42,24 @@ msgstr "答对 {correct} / {total} 个位置 · 再玩一次会生成新的随�
 
 msgid "hud.score"
 msgstr "总分  {score}"
+
+msgid "向上"
+msgstr "向上"
+
+msgid "向右"
+msgstr "向右"
+
+msgid "向下"
+msgstr "向下"
+
+msgid "向左"
+msgstr "向左"
+
+msgid "撤销"
+msgstr "撤销"
+
+msgid "确认"
+msgstr "确认"
+
+msgid "重新开始"
+msgstr "重新开始"
