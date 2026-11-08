@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "core_api_major": 4,
-  "package_version": "1.0.2",
+  "package_version": "1.0.3",
   "id": "direction_password",
   "name": "方向密码",
   "kind": "minigame",
@@ -12,7 +12,7 @@
   ],
   "introduction": "记住六轮方向序列，用方向键或 WASD 输入，退格撤销，回车提交。每个正确位置得 100 分，全对额外得 100 分。",
   "dependencies": {
-    "godot_party_default_protocol": "1.0.2"
+    "godot_party_default_protocol": "1.0.3"
   },
   "adapters": [
     {
