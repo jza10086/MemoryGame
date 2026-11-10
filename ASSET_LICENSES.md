@@ -1,4 +1,4 @@
-# direction_password 许可范围
+# gp_direction_code 许可范围
 
 声明日期：2026-11-08；声明人：项目所有者 jza10086。依据项目所有者本次明确授权。
 

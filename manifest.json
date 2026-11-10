@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "core_api_major": 5,
-  "package_version": "1.0.7",
-  "id": "direction_password",
+  "package_version": "1.0.8",
+  "id": "gp_direction_code",
   "name": "方向密码",
   "kind": "minigame",
   "supported_systems": ["windows"],

@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://b77cpxj2yjsvt"
-path="res://.godot/imported/NotoSansSC-UI.otf-62805bbe46f8e793656e8e02ced04e27.fontdata"
+path="res://.godot/imported/NotoSansSC-UI.otf-6140725b15ff651c3d730699e489f3e8.fontdata"
 
 [deps]
 
-source_file="res://games/minigame/direction_password/assets/fonts/NotoSansSC-UI.otf"
-dest_files=["res://.godot/imported/NotoSansSC-UI.otf-62805bbe46f8e793656e8e02ced04e27.fontdata"]
+source_file="res://games/minigame/gp_direction_code/assets/fonts/NotoSansSC-UI.otf"
+dest_files=["res://.godot/imported/NotoSansSC-UI.otf-6140725b15ff651c3d730699e489f3e8.fontdata"]
 
 [params]
 

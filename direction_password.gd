@@ -1,7 +1,7 @@
 ## Local memory game. The party entry listens for the six-round result.
 extends Control
 const Controls = preload("res://games/protocols/godot_party_default_protocol/solo_controls.gd")
-const Settings = preload("res://games/minigame/direction_password/settings.gd")
+const Settings = preload("res://games/minigame/gp_direction_code/settings.gd")
 var controls: Controls = Controls.new(Settings.schema())
 var _active: bool = false
 var _stopped: bool = false
@@ -9,8 +9,8 @@ var _text_source: RefCounted
 
 signal completed(metrics: Dictionary)
 
-const DEFAULT_TEXT: Translation = preload("res://games/minigame/direction_password/i18n/zh_Hans.po")
-const RULES: GDScript = preload("res://games/minigame/direction_password/direction_password_rules.gd")
+const DEFAULT_TEXT: Translation = preload("res://games/minigame/gp_direction_code/i18n/zh_Hans.po")
+const RULES: GDScript = preload("res://games/minigame/gp_direction_code/direction_password_rules.gd")
 const ARROWS: Array[String] = ["↑", "→", "↓", "←"]
 const NAMES: Array[String] = ["上", "右", "下", "左"]
 const ACCENT: Color = Color("#6ce5c2")
