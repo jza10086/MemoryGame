@@ -1,9 +1,13 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://games/minigame/gp_direction_code/ui/round_pages.tscn" id="protocol_pages"]
+
 [ext_resource type="Script" path="res://games/protocols/godot_party_default_protocol/solo_round.gd" id="1"]
 [ext_resource type="PackedScene" path="direction_password.tscn" id="2"]
 
-[node name="SoloRound" type="Control"]
+[node name="SoloRound" type="Control" node_paths=PackedStringArray("briefing", "settlement")]
+briefing = NodePath("ProtocolPages/Briefing")
+settlement = NodePath("ProtocolPages/Settlement")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -12,3 +16,6 @@ grow_vertical = 2
 script = ExtResource("1")
 gameplay = ExtResource("2")
 columns = Array[Dictionary]([{"key":"score","title":"得分","format":"integer"},{"key":"accuracy","title":"正确率 (%)","format":"decimal"}])
+
+[node name="ProtocolPages" parent="." instance=ExtResource("protocol_pages")]
+unique_name_in_owner = true
