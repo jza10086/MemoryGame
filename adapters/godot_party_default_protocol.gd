@@ -1,4 +1,9 @@
 extends RefCounted
+
+## Content-owned gameplay rules, independent of package compatibility.
+static func party_definition() -> Dictionary:
+	return {"dependencies": {}}
+
 ## Only the standard ranking contract is implemented by this blank template.
 
 func check_request(request: Dictionary) -> Dictionary:

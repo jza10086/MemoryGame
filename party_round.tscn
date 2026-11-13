@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://games/minigame/gp_direction_code/ui/round_pages.tscn" id="protocol_pages"]
 
-[ext_resource type="Script" path="res://games/protocols/godot_party_default_protocol/solo_round.gd" id="1"]
+[ext_resource type="Script" path="res://games/minigame/gp_direction_code/entry_rules.gd" id="1"]
 [ext_resource type="PackedScene" path="direction_password.tscn" id="2"]
 
 [node name="SoloRound" type="Control" node_paths=PackedStringArray("briefing", "settlement")]
