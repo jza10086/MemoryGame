@@ -1,11 +1,13 @@
 {
   "manifest_version": 2,
   "core_api_major": 5,
-  "package_version": "1.0.12",
+  "package_version": "1.0.14",
   "id": "gp_direction_code",
   "name": "方向密码",
   "kind": "minigame",
-  "supported_systems": ["windows"],
+  "supported_systems": [
+    "windows"
+  ],
   "config_schema": "settings.gd",
   "entry": "party_round.tscn",
   "player_counts": [
@@ -13,7 +15,7 @@
   ],
   "introduction": "记住六轮方向序列，用方向键或 WASD 输入，退格撤销，回车提交。每个正确位置得 100 分，全对额外得 100 分。",
   "dependencies": {
-    "godot_party_default_protocol": "1.0.11"
+    "godot_party_default_protocol": "1.0.13"
   },
   "adapters": [
     {
