@@ -12,8 +12,8 @@ static func schema() -> Dictionary:
 			"title": "向左", "action": "direction_left", "audience": "local", "apply": "immediate", "items": {"type": "object", "format": "binding"}, "max_items": 2, "combinations": false},
 		"direction_undo": {"type": "array", "control": "binding", "default": [{"kind": "key", "code": KEY_BACKSPACE, "physical": true}],
 			"title": "撤销", "action": "direction_undo", "audience": "local", "apply": "immediate", "items": {"type": "object", "format": "binding"}, "max_items": 2, "combinations": false},
-		"direction_confirm": {"type": "array", "control": "binding", "default": [{"kind": "key", "code": KEY_ENTER, "physical": true}, {"kind": "key", "code": KEY_SPACE, "physical": true}, {"kind": "key", "code": KEY_KP_ENTER, "physical": true}],
-			"title": "确认", "action": "direction_confirm", "audience": "local", "apply": "immediate", "items": {"type": "object", "format": "binding"}, "max_items": 3, "combinations": false},
+		"direction_confirm": {"type": "array", "control": "binding", "default": [{"kind": "key", "code": KEY_ENTER, "physical": true}, {"kind": "key", "code": KEY_SPACE, "physical": true}],
+			"title": "确认", "action": "direction_confirm", "audience": "local", "apply": "immediate", "items": {"type": "object", "format": "binding"}, "max_items": 2, "combinations": false},
 		"direction_restart": {"type": "array", "control": "binding", "default": [{"kind": "key", "code": KEY_R, "physical": true}],
 			"title": "重新开始", "action": "direction_restart", "audience": "local", "apply": "immediate", "items": {"type": "object", "format": "binding"}, "max_items": 2, "combinations": false}
 	}
