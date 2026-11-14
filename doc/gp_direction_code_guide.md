@@ -15,7 +15,7 @@
 - 「重新开始」随时回到起始页；最终「再玩一次」开始新的一局。
 
 场景根节点的 `arrow_seconds` 与 `gap_seconds` 可调整展示和间隔时间。
-[Noto CJK 中文字体](https://github.com/notofonts/noto-cjk)与[许可](assets/fonts/FONT-LICENSE.txt)随包提供。
+[Noto CJK 中文字体](https://github.com/notofonts/noto-cjk)与[许可](../assets/fonts/FONT-LICENSE.txt)随包提供。
 
 ## 回归检查
 
@@ -28,3 +28,9 @@
 正式场景由协议 SoloRound 显式注入 PartyInput 与翻译，准备阶段不启动模拟；确认开始后才接受操作，结算/取消时显式停止。正式 Esc 打开框架菜单，键盘与按钮遵守同一输入屏蔽；菜单本身不暂停计时。包内 `settings.gd` 声明可改键动作，F6 使用同一默认绑定且不增删全局 InputMap。观战端不运行本机模拟。
 
 记住六轮方向序列，用方向键或 WASD 输入，退格撤销，回车提交。每个正确位置得 100 分，全对额外得 100 分。
+
+## 包内开发文档
+
+未带 `res://` 的源码路径以本包根目录为基准。
+
+- [M01 方向密码　A　依赖 G02](gp_direction_code_development.md)
