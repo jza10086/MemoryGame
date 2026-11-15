@@ -63,3 +63,6 @@ msgstr "确认"
 
 msgid "重新开始"
 msgstr "重新开始"
+
+msgid "package.name"
+msgstr "方向密码"

@@ -1,6 +1,6 @@
 # 方向密码：单人原型
 
-在 GodotParty 主工程打开 `res://games/minigame/gp_direction_code/direction_password.tscn`，按 **F6** 启动。
+在 GodotParty 主工程打开 `res://games/minigame/GP_direction_code/direction_password.tscn`，按 **F6** 启动。
 大厅选择「小游戏轮换 → 方向密码」可以启动单人局。六轮结束后按实际得分和正确率进入公共结算，再返回轮换。
 
 ## 玩法
@@ -33,4 +33,4 @@
 
 未带 `res://` 的源码路径以本包根目录为基准。
 
-- [M01 方向密码　A　依赖 G02](gp_direction_code_development.md)
+- [M01 方向密码　A　依赖 G02](GP_direction_code_development.md)
